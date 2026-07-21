@@ -1,8 +1,7 @@
 [build]
-  base = "client"
-  publish = "dist"
-  command = "npm install && npm run build"
-  functions = "../netlify/functions"
+  publish = "client/dist"
+  command = "npm run build"
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/*"
