@@ -41,9 +41,16 @@ exports.handler = async function (event) {
       body: JSON.stringify({ ok: true, message: 'Mensaje enviado correctamente.' }),
     };
   } catch (error) {
+    const message =
+      error.code === 'EAUTH'
+        ? 'No se pudo autenticar el correo. Revisa SMTP_USER y SMTP_PASS.'
+        : error.code === 'ESOCKET'
+          ? 'No se pudo establecer la conexión con el servidor SMTP.'
+          : 'No se pudo enviar el correo. Revisa la configuración del servidor y las credenciales.';
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ ok: false, message: error.message || 'Error al enviar el correo.' }),
+      body: JSON.stringify({ ok: false, message }),
     };
   }
 };

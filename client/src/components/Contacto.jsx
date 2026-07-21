@@ -40,7 +40,9 @@ export default function Contacto() {
       setForm({ nombre: '', email: '', mensaje: '' });
     } catch (error) {
       setStatus('error');
-      setErrorMessage(error.message || 'No se pudo enviar el mensaje. Inténtalo de nuevo.');
+      setErrorMessage(
+        error.message || 'No se pudo enviar el mensaje. Revisa la configuración del correo e inténtalo de nuevo.'
+      );
     }
   };
 
