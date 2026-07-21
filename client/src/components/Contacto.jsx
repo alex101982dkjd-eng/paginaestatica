@@ -13,25 +13,34 @@ const INFO = [
 export default function Contacto() {
   const [form, setForm]   = useState({ nombre: '', email: '', mensaje: '' });
   const [status, setStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = e =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setStatus('loading');
+    setErrorMessage('');
 
     try {
-      const subject = encodeURIComponent(`Consulta desde la web - ${form.nombre}`);
-      const body = encodeURIComponent(
-        `Nombre: ${form.nombre}\nCorreo: ${form.email}\n\nMensaje:\n${form.mensaje}`
-      );
+      const response = await fetch('/.netlify/functions/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
 
-      window.location.href = `mailto:donpepe@ejemplo.com?subject=${subject}&body=${body}`;
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || 'No se pudo enviar el mensaje.');
+      }
+
       setStatus('ok');
       setForm({ nombre: '', email: '', mensaje: '' });
-    } catch {
+    } catch (error) {
       setStatus('error');
+      setErrorMessage(error.message || 'No se pudo enviar el mensaje. Inténtalo de nuevo.');
     }
   };
 
@@ -64,9 +73,9 @@ export default function Contacto() {
               <MessageCircle size={16} strokeWidth={2} />
               Enviar mensaje por WhatsApp
             </a>
-            <a href="mailto:donpepe@ejemplo.com" className="btn-email">
+            <a href="#contacto" className="btn-email">
               <Mail size={16} strokeWidth={2} />
-              Enviar correo
+              Ir al formulario
             </a>
           </div>
         </div>
@@ -100,7 +109,7 @@ export default function Contacto() {
             )}
             {status === 'error' && (
               <div className="contacto__alert contacto__alert--error">
-                No se pudo enviar el mensaje. Inténtalo de nuevo.
+                {errorMessage || 'No se pudo enviar el mensaje. Inténtalo de nuevo.'}
               </div>
             )}
 
