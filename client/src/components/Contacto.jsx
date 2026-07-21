@@ -17,28 +17,17 @@ export default function Contacto() {
   const handleChange = e =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleSubmit = async e => {
+  const handleSubmit = e => {
     e.preventDefault();
     setStatus('loading');
 
     try {
-      const res = await fetch('/.netlify/functions/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre: form.nombre,
-          correo: form.email,
-          telefono: 'No proporcionado',
-          mensaje: form.mensaje,
-        }),
-      });
+      const subject = encodeURIComponent(`Consulta desde la web - ${form.nombre}`);
+      const body = encodeURIComponent(
+        `Nombre: ${form.nombre}\nCorreo: ${form.email}\n\nMensaje:\n${form.mensaje}`
+      );
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'No se pudo enviar el mensaje.');
-      }
-
+      window.location.href = `mailto:donpepe@ejemplo.com?subject=${subject}&body=${body}`;
       setStatus('ok');
       setForm({ nombre: '', email: '', mensaje: '' });
     } catch {
