@@ -18,6 +18,21 @@ exports.handler = async function (event) {
       };
     }
 
+    const missingEnv = [];
+    if (!process.env.SMTP_USER) missingEnv.push('SMTP_USER');
+    if (!process.env.SMTP_PASS) missingEnv.push('SMTP_PASS');
+    if (!process.env.CONTACT_TO) missingEnv.push('CONTACT_TO');
+
+    if (missingEnv.length > 0) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          ok: false,
+          message: `Faltan variables de entorno en Netlify: ${missingEnv.join(', ')}`,
+        }),
+      };
+    }
+
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
@@ -41,12 +56,14 @@ exports.handler = async function (event) {
       body: JSON.stringify({ ok: true, message: 'Mensaje enviado correctamente.' }),
     };
   } catch (error) {
+    console.error('Contact form error:', error);
+
     const message =
       error.code === 'EAUTH'
         ? 'No se pudo autenticar el correo. Revisa SMTP_USER y SMTP_PASS.'
         : error.code === 'ESOCKET'
           ? 'No se pudo establecer la conexión con el servidor SMTP.'
-          : 'No se pudo enviar el correo. Revisa la configuración del servidor y las credenciales.';
+          : error.message || 'No se pudo enviar el correo. Revisa la configuración del servidor y las credenciales.';
 
     return {
       statusCode: 500,

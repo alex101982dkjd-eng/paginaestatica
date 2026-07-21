@@ -30,10 +30,19 @@ export default function Contacto() {
         body: JSON.stringify(form),
       });
 
-      const data = await response.json().catch(() => ({}));
+      let data = {};
+      const responseText = await response.text().catch(() => '');
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          data = { message: responseText };
+        }
+      }
 
       if (!response.ok || !data.ok) {
-        throw new Error(data.message || 'No se pudo enviar el mensaje.');
+        throw new Error(data.message || `El servidor respondió con el estado ${response.status}.`);
       }
 
       setStatus('ok');
