@@ -50,7 +50,7 @@ export default function Contacto() {
     } catch (error) {
       setStatus('error');
       setErrorMessage(
-        error.message || 'No se pudo enviar el mensaje. Revisa la configuración del correo e inténtalo de nuevo.'
+        error.message || 'No se pudo enviar el mensaje. Revisa que las variables SMTP_USER, SMTP_PASS y CONTACT_TO estén bien configuradas en Netlify y que tu cuenta permita SMTP.'
       );
     }
   };
